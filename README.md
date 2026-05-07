@@ -218,12 +218,15 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 
 ### Adding Custom Rules
 
-To add a new rule:
+A new rule touches three files: a Kotlin visitor under `src/main/kotlin/nl/utwente/processing/pmd/rules/`, an entry in `src/main/resources/rulesets/rules.xml`, and a category mapping in `src/main/resources/rule-category-mapping.properties` (only needed for the `student`/`handover` renderers). The fastest path is the scaffolding script:
 
-1. Create a Kotlin class extending `AbstractProcessingRule` in `src/main/kotlin/nl/utwente/processing/pmd/rules/`
-2. Implement the PMD visitor pattern for AST analysis
-3. Add the rule to `src/main/resources/rulesets/rules.xml` with appropriate category
-4. Rebuild the project
+```sh
+scripts/new_rule.sh HasFooRule "minimum.Basic Functionality" 3 \
+  "One-sentence student-facing message."
+mvn -B clean package
+```
+
+That generates the Kotlin stub with the correct `category` `PropertyDescriptor`, splices the `<rule>` block into `rules.xml` before `</ruleset>`, and adds the category mapping line — leaving you to fill in the `visit()` body. See [`docs/CUSTOM_RULES.md`](docs/CUSTOM_RULES.md) for the full walkthrough: visitor patterns, the synthesized-Java line-number caveat, available helpers (`ProcessingApplet`, `ExpressionUtils`, `ScopeUtils`), and common pitfalls.
 
 ## License
 

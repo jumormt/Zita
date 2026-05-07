@@ -87,5 +87,15 @@
   - `Runner.java`: added `printUsage()` with USAGE / REQUIRED / OPTIONAL / OUTPUT / EXAMPLES / NOTES sections covering each flag's accepted values, defaults, ruleset metadata requirements, renderer-specific line-mapping behavior, the `processing-java` PATH dependency, and the always-zero exit code.
   - Added `--help` / `-h` flag handling (also routes to `printUsage()`, exit 0).
   - Empty-args path now prints the same detailed banner instead of the old one-liner.
-- **Tests:** No suite. Manual smoke verified for empty args, `--help`, `-h`, and a normal `--project examples/01-bouncing-ball --renderer zita` run.
-- **Files:** `src/main/java/nl/utwente/Runner.java` (+~70 LOC).
+  - Subsequent commit `1fdfc4c`: ANSI-colorized the banner with `NO_COLOR` / `FORCE_COLOR` + TTY detection. Section headers (cyan), `--flags` (green), values (yellow), title (magenta), example comments (dim).
+- **Tests:** No suite. Manual smoke verified for empty args, `--help`, `-h`, and a normal `--project examples/01-bouncing-ball --renderer zita` run. Color modes verified across TTY / piped / `NO_COLOR=1` / `FORCE_COLOR=1`.
+- **Files:** `src/main/java/nl/utwente/Runner.java` (+~125 LOC across two commits).
+
+### 2026-05-07 (session 4)
+- **Focus:** Improve custom-rule authoring DX — README's 4-bullet "Adding Custom Rules" was insufficient given the 9 new rules added this branch.
+- **Completed:**
+  - `docs/CUSTOM_RULES.md` (new): full walkthrough — anatomy (3 files), visitor pattern with `HasVariableRule` and `HasHeaderCommentRule` examples, the missing-`PropertyDescriptor` pitfall, synthesized-Java line-number caveat, available helpers, verification recipe, common pitfalls.
+  - `scripts/new_rule.sh` (new): one-command scaffolder. Args: `<RuleName> <category> <priority> <message>`. Generates Kotlin stub with the correct `category` `PropertyDescriptor`, splices `<rule>` block into `rules.xml` before `</ruleset>` (via awk), appends `rule-category-mapping.properties` row. Refuses overwrites, validates PascalCase + priority 1-5 + bucket ∈ {minimum, mastery}. Pass `none` as category to skip the property/mapping for stock-PMD-renderer-only rules.
+  - `README.md`: replaced the 4-step bullet list with a 2-paragraph pointer at the script + new doc.
+- **Tests:** Smoke-scaffolded `ScaffoldingSmokeTestRule`, ran `mvn -B clean package` (build green, no PMDRunner construction crash), executed the JAR against `examples/01-bouncing-ball`, then reverted the smoke-test artifacts.
+- **Files:** `docs/CUSTOM_RULES.md` (new), `scripts/new_rule.sh` (new, +x), `README.md` (-9/+8).
