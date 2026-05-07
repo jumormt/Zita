@@ -144,12 +144,17 @@ RULES: dict[str, list[str]] = {
     "scope": [
         "OutOfScopeStateChangeRule",
     ],
-    # AI-codegen detection rules (handover 2026-05-07).
+    # AI-codegen detection rules (handover 2026-05-07 + follow-up).
     "ai_detection": [
         "HasPlaceholderAuthorRule",
         "HasDecorativeSectionCommentsRule",
         "HasCitationCommentsRule",
         "HasRandomDirectionPatternRule",
+        "HasRandomDirectionChangePatternRule",
+        "HasFrameCountMagicNumberRule",
+        "HasExcessiveInlineDocumentationRule",
+        "HasWikipediaReferenceRule",
+        "HasEmptyMethodBodyRule",
     ],
 }
 
