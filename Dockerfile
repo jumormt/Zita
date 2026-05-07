@@ -11,8 +11,13 @@
 # Build:
 #   docker build -t zita .
 #
-# Run a single sketch (mounting the sketch directory at /work):
-#   docker run --rm -v "$PWD/MySketch:/work" zita \
+# Run a bundled example sketch (no host mount needed — examples/ ships in the
+# image at /app/examples):
+#   docker run --rm zita \
+#     --project /app/examples/01-bouncing-ball --rules /app/rules.xml --renderer zita
+#
+# Run a single sketch from the host (mounting the sketch directory at /work):
+#   docker run --rm -v "$PWD/path/to/sketch:/work" zita \
 #     --project /work --rules /app/rules.xml --renderer zita
 #
 # Run the batch pipeline (override the entrypoint to invoke Python):
@@ -55,6 +60,10 @@ RUN apt-get update \
 COPY --from=builder /build/target/Zita.jar             /app/Zita.jar
 COPY src/main/resources/rulesets/rules.xml             /app/rules.xml
 COPY scripts                                           /app/scripts
+# Bundled example sketches (~3 small sketches, <2 KB total) so the image is
+# self-contained — `docker run zita --project /app/examples/01-bouncing-ball
+# --rules /app/rules.xml` works with no host mount.
+COPY examples                                          /app/examples
 
 # Convenience env vars consumed by users in shell wrappers; the scripts
 # themselves still accept paths positionally.
