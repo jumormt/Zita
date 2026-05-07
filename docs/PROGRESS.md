@@ -80,3 +80,12 @@
 - **Tests:** Manual sweep 46 samples × 2 JARs = 92 invocations, all passed.
 - **Files:** 9 new `.kt` files, `rules.xml` (+9 rule entries), `scripts/{batch_process_zita,analyze_zita_results}.py + README.md`, 5 plan files + 1 summary file under `docs/`.
 - **Blockers:** Upstream PRs #10 and #11 must merge before this work can be cleanly PR'd to upstream (otherwise diff includes simulation merges).
+
+### 2026-05-07 (session 3)
+- **Focus:** Expand the runtime usage banner — the one-line `Usage:` printed by `java -jar Zita.jar` was too sparse.
+- **Completed:**
+  - `Runner.java`: added `printUsage()` with USAGE / REQUIRED / OPTIONAL / OUTPUT / EXAMPLES / NOTES sections covering each flag's accepted values, defaults, ruleset metadata requirements, renderer-specific line-mapping behavior, the `processing-java` PATH dependency, and the always-zero exit code.
+  - Added `--help` / `-h` flag handling (also routes to `printUsage()`, exit 0).
+  - Empty-args path now prints the same detailed banner instead of the old one-liner.
+- **Tests:** No suite. Manual smoke verified for empty args, `--help`, `-h`, and a normal `--project examples/01-bouncing-ball --renderer zita` run.
+- **Files:** `src/main/java/nl/utwente/Runner.java` (+~70 LOC).
