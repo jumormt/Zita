@@ -26,8 +26,17 @@
 
 set -euo pipefail
 
-if [[ $# -ne 4 ]]; then
+print_usage() {
     sed -n '2,28p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+if [[ $# -eq 1 && ( "$1" == "--help" || "$1" == "-h" ) ]]; then
+    print_usage
+    exit 0
+fi
+
+if [[ $# -ne 4 ]]; then
+    print_usage
     exit 1
 fi
 

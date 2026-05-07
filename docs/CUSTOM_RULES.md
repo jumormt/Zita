@@ -180,11 +180,15 @@ For multi-sample regression checking, the pattern used during development was a 
 For new rules, prefer:
 
 ```sh
-scripts/new_rule.sh HasFooRule "minimum.Basic Functionality" 3 \
-  "One-sentence student-facing message."
+scripts/new_rule.sh \
+  HasFooRule \                             # 1. RuleName  — PascalCase, conventionally ends in "Rule".
+  "minimum.Basic Functionality" \          # 2. category  — "<bucket>.<subcategory>" (see "Choosing category and priority" above);
+                                           #                pass "none" to skip the category property/mapping entirely.
+  3 \                                      # 3. priority  — PMD priority 1 (highest) – 5 (lowest); use 3 unless you have a reason not to.
+  "One-sentence student-facing message."   # 4. message   — what the student sees when the rule fires.
 ```
 
-It generates the Kotlin stub, appends the `rules.xml` entry, and adds the category mapping in one shot. See [`scripts/new_rule.sh`](../scripts/new_rule.sh) for arguments.
+Run `scripts/new_rule.sh --help` (or `-h`, or no args) to print the same usage block at any time. The script generates the Kotlin stub, appends the `rules.xml` entry, and adds the category mapping in one shot.
 
 ## Where to look next
 
