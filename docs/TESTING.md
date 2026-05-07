@@ -150,12 +150,13 @@ python3 scripts/batch_process_zita.py examples out
 **Expected output**:
 
 ```text
-Processing 3 submissions...
-  [1/3] ok 01-bouncing-ball
-  [2/3] ok 02-violations
-  [3/3] ok 03-multi-file
+Processing 4 submissions...
+  [1/4] ok 01-bouncing-ball
+  [2/4] ok 02-violations
+  [3/4] ok 03-multi-file
+  [4/4] ok 04-ai-style
 
-Done: 3/3 successful
+Done: 4/4 successful
 Output: out
 ```
 
@@ -186,12 +187,13 @@ cat out/csv/analysis_report.md | head -30
 
 ## Summary
 
-- **Submissions analysed:** 3
+- **Submissions analysed:** 4
 - **Unique rules triggered:** N
 
 - 01-bouncing-ball - Violations: ...
 - 02-violations    - Violations: ...
 - 03-multi-file    - Violations: ...
+- 04-ai-style      - Violations: ...
 ```
 
 Per-submission counts will differ across submissions — `02-violations` should be highest, `01-bouncing-ball` lowest. If every row shows the same number, see Troubleshooting → "all submissions show identical counts".
@@ -200,18 +202,29 @@ Per-submission counts will differ across submissions — `02-violations` should 
 
 ## Test 6 — Inspect the AI-detection signals
 
-The analyser groups categories by rules that *did* fire. With an AI-free cohort, no `### Ai Detection` section is produced — instead the AI rules appear under `### Rules Not Triggered`. Verify all nine AI-detection rules are present there:
+`examples/04-ai-style` is the positive control: it fires all nine `Has*` AI-detection rules. The aggregate report should therefore contain a populated `### Ai Detection` section:
 
 ```bash
-for r in HasDecorativeSectionCommentsRule HasPlaceholderAuthorRule \
-         HasWikipediaReferenceRule HasRandomDirectionPatternRule \
-         HasRandomDirectionChangePatternRule HasExcessiveInlineDocumentationRule \
-         HasFrameCountMagicNumberRule HasEmptyMethodBodyRule HasCitationCommentsRule; do
-  grep -q "^- $r\$" out/csv/analysis_report.md && echo "  $r ✓" || echo "  $r ✗ MISSING"
-done
+grep -A 12 "^### Ai Detection" out/csv/analysis_report.md
 ```
 
-**Expected output**: nine `✓` lines. This is the *negative control* for the batch report — confirms the AI rules don't false-fire on clean code, and confirms they're wired into the analyser's category map at all (otherwise they'd be listed under `### Rules Not in Category List` instead). To see the rules actually fire, point Test 3's hand-crafted sketch at `--renderer zita` directly (Test 3 above), or run the batch on a directory that includes it — the per-rule totals would then appear in a real `### Ai Detection` section.
+**Expected output** (totals reflect a single AI-style sketch in the cohort):
+
+```text
+### Ai Detection
+
+- HasPlaceholderAuthorRule - Total: 1
+- HasDecorativeSectionCommentsRule - Total: 1
+- HasCitationCommentsRule - Total: 1
+- HasRandomDirectionPatternRule - Total: 1
+- HasRandomDirectionChangePatternRule - Total: 1
+- HasFrameCountMagicNumberRule - Total: 1
+- HasExcessiveInlineDocumentationRule - Total: 1
+- HasWikipediaReferenceRule - Total: 1
+- HasEmptyMethodBodyRule - Total: 1
+```
+
+All nine totals should be `1` (each rule fires once on `04-ai-style` and zero times on the other three sketches). Rules within a category are sorted by how often they fire across the cohort, so the ordering above can shift on bigger cohorts. If any rule is missing, it's not wired into the analyser's category map — see Troubleshooting → "rule appears under 'Rules Not in Category List'".
 
 ---
 

@@ -60,7 +60,7 @@ RUN apt-get update \
 COPY --from=builder /build/target/Zita.jar             /app/Zita.jar
 COPY src/main/resources/rulesets/rules.xml             /app/rules.xml
 COPY scripts                                           /app/scripts
-# Bundled example sketches (~3 small sketches, <2 KB total) so the image is
+# Bundled example sketches (~4 small sketches, <3 KB total) so the image is
 # self-contained — `docker run zita --project /app/examples/01-bouncing-ball
 # --rules /app/rules.xml` works with no host mount.
 COPY examples                                          /app/examples

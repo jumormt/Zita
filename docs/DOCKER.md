@@ -19,7 +19,7 @@ docker build -t zita .
 
 ### Run a bundled example sketch
 
-The image ships three tiny example sketches at `/app/examples/` so you can verify it works without mounting anything:
+The image ships four tiny example sketches at `/app/examples/` so you can verify it works without mounting anything:
 
 ```bash
 docker run --rm zita \
@@ -28,7 +28,7 @@ docker run --rm zita \
   --renderer zita
 ```
 
-Try `01-bouncing-ball` (clean reference sketch) and `03-multi-file` (multi-file project) for contrast. See [`examples/README.md`](../examples/README.md) for what each sketch demonstrates.
+Try `01-bouncing-ball` (clean reference sketch), `03-multi-file` (multi-file project), and `04-ai-style` (AI-codegen positive control) for contrast. See [`examples/README.md`](../examples/README.md) for what each sketch demonstrates.
 
 ### Run a single sketch from the host
 
@@ -79,7 +79,7 @@ mkdir -p out
 docker run --rm --user "$(id -u):$(id -g)" --entrypoint python3 \
   -v "$PWD/examples:/work" -v "$PWD/out:/out" \
   zita /app/scripts/batch_process_zita.py /work /out
-# Done: 3/3 successful
+# Done: 4/4 successful
 ```
 
 Then aggregate the results into a markdown report:
@@ -137,10 +137,11 @@ For purely interactive single-sketch work the simplest path is still the host JA
 /app/
 ├── Zita.jar              # the shaded uber-jar
 ├── rules.xml             # default ruleset (same as src/main/resources/rulesets/)
-├── examples/             # three bundled demo sketches; safe to use as fixtures
+├── examples/             # four bundled demo sketches; safe to use as fixtures
 │   ├── 01-bouncing-ball/
 │   ├── 02-violations/
-│   └── 03-multi-file/
+│   ├── 03-multi-file/
+│   └── 04-ai-style/
 └── scripts/
     ├── batch_process_zita.py
     ├── analyze_zita_results.py
