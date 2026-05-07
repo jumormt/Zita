@@ -115,6 +115,35 @@ HasFooRule=minimum.Basic Functionality
 
 Format: `<RuleName>=<bucket>.<Subcategory>` where `<bucket>` is `minimum` or `mastery`. The subcategory is a free-form string (use Title Case, with spaces — match existing entries). The `student` / `handover` renderers group violations by this label.
 
+## Choosing category and priority
+
+### Category buckets and subcategories
+
+The `category` argument is `<bucket>.<subcategory>`. The bucket is enforced; the subcategory is free-form text used as a grouping label by the `student` and `handover` renderers, so a typo silently creates a new bucket. Match an existing subcategory when one fits; coin a new one only when nothing matches.
+
+Buckets and subcategories currently in use across the ruleset (extracted from `rule-category-mapping.properties`):
+
+| Bucket | Subcategories in use |
+|--------|----------------------|
+| `minimum` | `submission`, `Basic Functionality`, `Basic Variables & Arithmetic`, `Control Flow`, `Methods`, `Arrays`, `Classes`, `Event Handling` |
+| `mastery` | `Code Style`, `Design` |
+
+Pass `none` to `scripts/new_rule.sh` to skip the category entirely — the rule will then surface only in the stock PMD renderers (`html`/`json`/`csv`) and not in the `student`/`handover` reports.
+
+### Priority
+
+PMD priority is an integer 1–5, where 1 is highest. `PMDRunner` pins the floor at `LOW` so all five values are honored. Distribution across the existing ruleset:
+
+| Value | PMD label | Existing rules | When to use |
+|-------|-----------|----------------|-------------|
+| 1 | `HIGH` | 3 | Hard-fail conditions — sketch doesn't compile, submission incomplete. |
+| 2 | `MEDIUM_HIGH` | 4 | Major correctness or completeness issues. |
+| 3 | `MEDIUM` | 47 (≈85%) | The de-facto default. Use unless you have a reason not to. |
+| 4 | `MEDIUM_LOW` | 2 | Soft style nudges, optional improvements. |
+| 5 | `LOW` | 0 | Currently unused; reserved. |
+
+Pick `3` unless the rule clearly belongs at one of the extremes.
+
 ## Verifying the rule fires
 
 There is no automated test suite. Verification is empirical:
