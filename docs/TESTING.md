@@ -139,42 +139,30 @@ If any of the six is missing, see Troubleshooting → "expected rule did not fir
 
 ## Test 4 — Batch analysis on a cohort
 
-Build a small cohort from the bundled examples plus the hand-crafted AI sketch from Test 3, then run the batch pipeline:
+Run the batch pipeline directly against the bundled `examples/` directory — its three subdirectories already match the flat-cohort layout the script expects, so no copying is needed:
 
 ```bash
-mkdir -p /tmp/my-cohort
-cp -r examples/01-bouncing-ball  /tmp/my-cohort/
-cp -r examples/02-violations     /tmp/my-cohort/
-cp -r examples/03-multi-file     /tmp/my-cohort/
-cp -r /tmp/zita-test/MySketch    /tmp/my-cohort/   # hand-crafted AI sketch from Test 3
-
-ls /tmp/my-cohort
-# Expect: 4 directories
+python3 scripts/batch_process_zita.py examples /tmp/zita-batch-out
 ```
 
-Important: use `cp -r`, not `ln -s`. Zita's `Files.find` does not follow symlinks; symlinked submissions silently produce empty results.
-
-```bash
-python3 scripts/batch_process_zita.py /tmp/my-cohort /tmp/my-cohort/out
-```
+(The second arg is the output directory. Omit it and output lands at `examples/batch-analysis/`, which would pollute the committed examples — pass an explicit `/tmp` path instead.)
 
 **Expected output**:
 
-```
-Processing 4 submissions...
-  [1/4] ok 01-bouncing-ball
-  [2/4] ok 02-violations
-  [3/4] ok 03-multi-file
-  [4/4] ok MySketch
+```text
+Processing 3 submissions...
+  [1/3] ok 01-bouncing-ball
+  [2/3] ok 02-violations
+  [3/3] ok 03-multi-file
 
-Done: 4/4 successful
-Output: /tmp/my-cohort/out
+Done: 3/3 successful
+Output: /tmp/zita-batch-out
 ```
 
 The output directory now contains:
 
-```
-/tmp/my-cohort/out/
+```text
+/tmp/zita-batch-out/
 ├── csv/                       # PMD CSV (input for the analyser)
 ├── json/                      # PMD JSON (machine-readable)
 ├── student_feedback/          # Student renderer text
@@ -187,24 +175,23 @@ The output directory now contains:
 ## Test 5 — Aggregate report
 
 ```bash
-python3 scripts/analyze_zita_results.py /tmp/my-cohort/out/csv
-cat /tmp/my-cohort/out/csv/analysis_report.md | head -30
+python3 scripts/analyze_zita_results.py /tmp/zita-batch-out/csv
+cat /tmp/zita-batch-out/csv/analysis_report.md | head -30
 ```
 
 **Expected output**:
 
-```
+```text
 # Zita Analysis Report
 
 ## Summary
 
-- **Submissions analysed:** 4
+- **Submissions analysed:** 3
 - **Unique rules triggered:** N
 
 - 01-bouncing-ball - Violations: ...
 - 02-violations    - Violations: ...
 - 03-multi-file    - Violations: ...
-- MySketch         - Violations: ...
 ```
 
 Per-submission counts will differ across submissions — `02-violations` should be highest, `01-bouncing-ball` lowest. If every row shows the same number, see Troubleshooting → "all submissions show identical counts".
@@ -214,26 +201,26 @@ Per-submission counts will differ across submissions — `02-violations` should 
 ## Test 6 — Inspect the AI-detection signals
 
 ```bash
-grep -A 12 "^### Ai Detection" /tmp/my-cohort/out/csv/analysis_report.md
+grep -A 12 "^### Ai Detection" /tmp/zita-batch-out/csv/analysis_report.md
 ```
 
-**Expected output** (counts will reflect the 4-submission cohort — most AI-detection rules fire only on the hand-crafted `MySketch`):
+**Expected output** — the bundled `examples/` are deliberately AI-free, so all AI-detection totals should be `0` (or the rule omitted from the report):
 
-```
+```text
 ### Ai Detection
 
-- HasDecorativeSectionCommentsRule - Total: 1
-- HasPlaceholderAuthorRule - Total: 1
-- HasWikipediaReferenceRule - Total: 1
-- HasRandomDirectionPatternRule - Total: 1
-- HasRandomDirectionChangePatternRule - Total: 1
-- HasExcessiveInlineDocumentationRule - Total: 1
-- HasFrameCountMagicNumberRule - Total: 0   (or omitted)
-- HasEmptyMethodBodyRule - Total: 0         (or omitted)
-- HasCitationCommentsRule - Total: 0        (or omitted)
+- HasDecorativeSectionCommentsRule - Total: 0   (or omitted)
+- HasPlaceholderAuthorRule - Total: 0           (or omitted)
+- HasWikipediaReferenceRule - Total: 0          (or omitted)
+- HasRandomDirectionPatternRule - Total: 0      (or omitted)
+- HasRandomDirectionChangePatternRule - Total: 0 (or omitted)
+- HasExcessiveInlineDocumentationRule - Total: 0 (or omitted)
+- HasFrameCountMagicNumberRule - Total: 0       (or omitted)
+- HasEmptyMethodBodyRule - Total: 0             (or omitted)
+- HasCitationCommentsRule - Total: 0            (or omitted)
 ```
 
-A real cohort with multiple AI submissions would show higher totals on the first six rules; this small fixture cohort just confirms the signals are wired correctly.
+This is the *negative control* for the batch report — confirms the AI rules don't false-fire on clean code. To see the rules actually fire, point Test 3's hand-crafted sketch at `--renderer zita` directly (Test 3 above) or run the batch on a directory that contains it.
 
 ---
 
@@ -242,10 +229,10 @@ A real cohort with multiple AI submissions would show higher totals on the first
 Drill into one submission's violations:
 
 ```bash
-sed -n '/^### MySketch$/,/^### /p' /tmp/my-cohort/out/csv/analysis_report.md
+sed -n '/^### 02-violations$/,/^### /p' /tmp/zita-batch-out/csv/analysis_report.md
 ```
 
-**Expected output**: a `### MySketch` block listing every rule that fired on the hand-crafted sketch from Test 3, sorted by hit count.
+**Expected output**: a `### 02-violations` block listing every rule that fired on the deliberate-anti-pattern sketch, sorted by hit count.
 
 ---
 
@@ -329,7 +316,7 @@ time java -jar target/Zita.jar \
 ## Cleanup
 
 ```bash
-rm -rf /tmp/zita-test /tmp/my-cohort
+rm -rf /tmp/zita-test /tmp/zita-batch-out
 ```
 
 ---
