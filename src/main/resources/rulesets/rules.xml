@@ -1041,4 +1041,94 @@ class Ball {
 ]]></example>
     </rule>
 
+    <rule name="HasRandomDirectionChangePatternRule"
+          language="java"
+          message="AI-typical random direction-change pattern detected."
+          class="nl.utwente.processing.pmd.rules.HasRandomDirectionChangePatternRule">
+        <description>
+            Flags the idiom `if (random(1) &lt; 0.01) dir *= -1;` (and the
+            equivalent `random(100) &lt; 1` Gemini variant) used to sporadically
+            reverse direction. Appears across all three model families in the
+            handover assC corpus.
+        </description>
+        <priority>3</priority>
+        <example><![CDATA[
+    if (random(1) < 0.01) dir *= -1;   // flagged
+    if (random(100) < 1) dir *= -1;    // flagged (Gemini variant)
+]]></example>
+    </rule>
+
+    <rule name="HasFrameCountMagicNumberRule"
+          language="java"
+          message="Frame-count magic number with fps/frames explanatory comment detected."
+          class="nl.utwente.processing.pmd.rules.HasFrameCountMagicNumberRule">
+        <description>
+            Flags comments that explain integer constants in terms of frames
+            or frames-per-second, such as "180 // 3 seconds at 60 fps". This
+            commenting style is rare in human Processing pedagogy but typical
+            in AI-generated game-loop code.
+        </description>
+        <priority>3</priority>
+        <example><![CDATA[
+    final int VULN_DURATION = 180;  // 3 seconds at 60 fps    // flagged
+    int timer = 180; // frames the ghost stays vulnerable     // flagged
+]]></example>
+    </rule>
+
+    <rule name="HasExcessiveInlineDocumentationRule"
+          language="java"
+          message="Excessive inline documentation narrating adjacent Processing API calls."
+          class="nl.utwente.processing.pmd.rules.HasExcessiveInlineDocumentationRule">
+        <description>
+            Flags files where comments restate or trivially narrate adjacent
+            Processing API calls (e.g. `background(0); // black background`)
+            beyond a configurable threshold, OR where the overall
+            comment-to-code line ratio exceeds the configured limit.
+            Tunable via `narrationThreshold` (default 3) and
+            `ratioThreshold` (default 0.4).
+        </description>
+        <priority>3</priority>
+        <properties>
+            <property name="narrationThreshold" value="3"/>
+        </properties>
+        <example><![CDATA[
+    background(0); // Black background each frame   // narration counted
+    fill(255);     // white fill                    // narration counted
+    rect(x, y, 10, 10);  // draw rectangle           // narration counted
+]]></example>
+    </rule>
+
+    <rule name="HasWikipediaReferenceRule"
+          language="java"
+          message="Wikipedia reference found in comment."
+          class="nl.utwente.processing.pmd.rules.HasWikipediaReferenceRule">
+        <description>
+            Flags Wikipedia URLs cited as inspiration source in comments.
+            LLMs frequently default to Wikipedia when asked to credit a
+            reference, making this a reliable AI-codegen tell.
+        </description>
+        <priority>3</priority>
+        <example><![CDATA[
+    // Reference: https://en.wikipedia.org/wiki/Pac-Man   // flagged
+]]></example>
+    </rule>
+
+    <rule name="HasEmptyMethodBodyRule"
+          language="java"
+          message="Empty user-defined method body."
+          class="nl.utwente.processing.pmd.rules.HasEmptyMethodBodyRule">
+        <description>
+            Flags user-defined methods whose body is empty. Excludes
+            Processing lifecycle and event handlers (setup, draw,
+            mousePressed, keyPressed, ...) which legitimately may be empty.
+            Single weak signal — most useful in combination with other
+            AI-detection rules rather than standalone.
+        </description>
+        <priority>4</priority>
+        <example><![CDATA[
+    void update() {}     // flagged
+    void mousePressed() {}   // not flagged (Processing event handler)
+]]></example>
+    </rule>
+
 </ruleset>
