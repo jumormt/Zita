@@ -34,12 +34,12 @@ Try `01-bouncing-ball` (clean reference sketch), `03-multi-file` (multi-file pro
 
 ```bash
 docker run --rm \
-  -v "$PWD/path/to/sketch:/work" \
+  -v "$PWD/examples/01-bouncing-ball:/work" \
   zita \
   --project /work --rules /app/rules.xml --renderer zita
 ```
 
-Renderer values: `zita` (default), `student`, `handover`, `html`, `json`, `csv`. See `docs/TESTING.md` for the full walkthrough.
+Swap `examples/01-bouncing-ball` for any sketch directory on your host (e.g. `$PWD/my-sketch`). Renderer values: `zita` (default), `student`, `handover`, `html`, `json`, `csv`. See `docs/TESTING.md` for the full walkthrough.
 
 ### Run the batch pipeline
 
@@ -99,7 +99,7 @@ The image bundles `src/main/resources/rulesets/rules.xml` at `/app/rules.xml`. T
 
 ```bash
 docker run --rm \
-  -v "$PWD/path/to/sketch:/work" \
+  -v "$PWD/examples/01-bouncing-ball:/work" \
   -v "$PWD/my-rules.xml:/rules.xml:ro" \
   zita \
   --project /work --rules /rules.xml --renderer zita

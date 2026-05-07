@@ -17,7 +17,7 @@
 #     --project /app/examples/01-bouncing-ball --rules /app/rules.xml --renderer zita
 #
 # Run a single sketch from the host (mounting the sketch directory at /work):
-#   docker run --rm -v "$PWD/path/to/sketch:/work" zita \
+#   docker run --rm -v "$PWD/examples/01-bouncing-ball:/work" zita \
 #     --project /work --rules /app/rules.xml --renderer zita
 #
 # Run the batch pipeline (override the entrypoint to invoke Python):
