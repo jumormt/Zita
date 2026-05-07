@@ -972,4 +972,73 @@ class Ball {
         </example>
     </rule>
 
+    <!-- AI-codegen detection rules (handover 2026-05-07) -->
+
+    <rule name="HasPlaceholderAuthorRule"
+          language="java"
+          message="Placeholder author text detected in comment."
+          class="nl.utwente.processing.pmd.rules.HasPlaceholderAuthorRule">
+        <description>
+            Flags submissions whose header or inline comments contain placeholder
+            author text such as [Your Name], &lt;your name&gt;, or "TODO: add name".
+            These are commonly left untouched in AI-generated code.
+        </description>
+        <priority>2</priority>
+        <example><![CDATA[
+    // Author: [Your Name]      // flagged
+    // Name: <your name>        // flagged
+    // TODO: add name here      // flagged
+]]></example>
+    </rule>
+
+    <rule name="HasDecorativeSectionCommentsRule"
+          language="java"
+          message="Decorative section comment dividers detected."
+          class="nl.utwente.processing.pmd.rules.HasDecorativeSectionCommentsRule">
+        <description>
+            Flags elaborate ASCII or Unicode box-drawing dividers in comments
+            (e.g. long runs of '=', '-', '#', or U+2500/U+2550). These dividers
+            appear consistently in Claude- and GPT-generated Processing code and
+            are uncommon in human-written student submissions.
+        </description>
+        <priority>2</priority>
+        <example><![CDATA[
+    // ================ CLASSES ================            // flagged
+    // ----------------- main loop ---------------          // flagged
+]]></example>
+    </rule>
+
+    <rule name="HasCitationCommentsRule"
+          language="java"
+          message="AI citation marker detected in comment."
+          class="nl.utwente.processing.pmd.rules.HasCitationCommentsRule">
+        <description>
+            Flags Gemini-style citation markers like [cite: 4] left in source
+            comments or appended to statements. Strong indicator of unedited
+            Gemini output.
+        </description>
+        <priority>2</priority>
+        <example><![CDATA[
+    background(0); // [cite: 4]                              // flagged
+    // Initialize traditional array [cite: 36, 52]           // flagged
+]]></example>
+    </rule>
+
+    <rule name="HasRandomDirectionPatternRule"
+          language="java"
+          message="AI-typical random direction ternary pattern detected."
+          class="nl.utwente.processing.pmd.rules.HasRandomDirectionPatternRule">
+        <description>
+            Flags the idiom `random(1) &gt; 0.5 ? 1 : -1` (or its symmetric form)
+            used to randomly choose between +1 and -1 for direction
+            initialisation. This exact pattern is near-universal in AI-generated
+            assC submissions and absent from the human baseline.
+        </description>
+        <priority>2</priority>
+        <example><![CDATA[
+    int dir = random(1) > 0.5 ? 1 : -1;      // flagged
+    direction = (random(1) > 0.5) ? 1 : -1;  // flagged
+]]></example>
+    </rule>
+
 </ruleset>
