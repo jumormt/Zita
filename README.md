@@ -218,15 +218,7 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 
 ### Adding Custom Rules
 
-The fastest path is the scaffolding script:
-
-```sh
-scripts/new_rule.sh HasFooRule "minimum.Basic Functionality" 3 \
-  "One-sentence student-facing message."
-mvn -B clean package
-```
-
-Run `scripts/new_rule.sh` with no arguments to see the four positional arguments. See [`docs/CUSTOM_RULES.md`](docs/CUSTOM_RULES.md) for the full walkthrough — anatomy of a rule, visitor patterns, available `category` buckets and `priority` values, the synthesized-Java line-number caveat, helpers (`ProcessingApplet`, `ExpressionUtils`, `ScopeUtils`), and common pitfalls.
+See [`docs/CUSTOM_RULES.md`](docs/CUSTOM_RULES.md) for the full walkthrough. The recommended path is the scaffolding script (`scripts/new_rule.sh`); the doc covers `category` buckets and `priority` values, visitor patterns, available helpers (`ProcessingApplet`, `ExpressionUtils`, `ScopeUtils`), the synthesized-Java line-number caveat, and common pitfalls.
 
 ## License
 
@@ -245,5 +237,5 @@ Special thanks to **Ansgar Fehnker** for supervising the continued development a
 
 ---
 
-**Maintained by**: Adam Fulton
+**Maintained by**: Adam Fulton, Xiao Cheng
 **Deployed at**: Macquarie University, COMP1000
