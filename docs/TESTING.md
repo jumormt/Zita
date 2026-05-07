@@ -12,6 +12,8 @@ Each test states what you should expect to see. If your output differs, the **Tr
 - Maven 3 (Maven 3.9+ recommended; project has no `mvnw` wrapper)
 - Python 3.10+ (only needed for the batch scripts)
 
+> **Don't want to install any of these on the host?** See [`docs/DOCKER.md`](DOCKER.md) for the production image (everything pre-bundled) or the dev container config (full VS Code environment).
+
 Confirm you are in the repo root and the JAR is built:
 
 ```bash

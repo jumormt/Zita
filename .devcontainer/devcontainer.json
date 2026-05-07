@@ -1,0 +1,52 @@
+// Dev container for Zita.
+// Spec: https://containers.dev/implementors/json_reference/
+//
+// Usage:
+//   - VS Code: install "Dev Containers" extension, F1 → "Dev Containers: Reopen in Container"
+//   - GitHub Codespaces: works out of the box, no extra config needed
+//
+// Provides JDK 17 + Maven (from the base image) and Python 3.11 (via feature)
+// — the minimum needed to build the JAR and run the batch-analysis scripts.
+{
+  "name": "Zita",
+
+  // Microsoft's java devcontainer base image: JDK 17, Maven, Git, common dev
+  // tooling. Avoids maintaining a parallel Dockerfile.
+  "image": "mcr.microsoft.com/devcontainers/java:1-17-jammy",
+
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11",
+      "installTools": false
+    }
+  },
+
+  // Build the JAR on first create so contributors can run Zita immediately
+  // after the container comes up. Skip tests (the project has none yet).
+  "postCreateCommand": "mvn -B -q clean package -DskipTests",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "fwcd.kotlin",
+        "ms-python.python",
+        "redhat.vscode-xml",
+        "redhat.vscode-yaml",
+        "DavidAnson.vscode-markdownlint"
+      ],
+      "settings": {
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "files.exclude": {
+          "**/target": true,
+          "**/temp": true
+        }
+      }
+    }
+  },
+
+  "remoteUser": "vscode",
+
+  // No ports to forward — Zita is a CLI tool.
+  "forwardPorts": []
+}

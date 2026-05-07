@@ -1,0 +1,35 @@
+# Build output (rebuilt inside the container).
+target/
+*.class
+*.jar
+
+# Local-only Claude Code config (also in .git/info/exclude on developer machines).
+CLAUDE.md
+.claude/
+
+# Local scratch and handover artefacts (~109 files, ~1.6 MB) — never needed
+# in the image; the regression sweep and handover materials stay on the host.
+temp/
+
+# LDD documentation and plan files — the repo has them but the container
+# doesn't need them. Keep the image small.
+docs/
+
+# IDE / OS noise.
+.idea/
+.vscode/
+*.iml
+.DS_Store
+**/.DS_Store
+
+# Git internals (the build doesn't need git).
+.git/
+.gitignore
+.gitattributes
+
+# Dev container config — separate stage, not part of the production image.
+.devcontainer/
+
+# Python bytecode.
+**/__pycache__/
+*.py[cod]

@@ -157,6 +157,10 @@ mvn clean package
 java -jar target/Zita.jar --project <path> --rules <rules_path>
 ```
 
+### Docker / Dev Container
+
+If you'd rather not install Java + Maven + Python on the host, the repository ships with a multi-stage `Dockerfile` (production image, ~299 MB) and a `.devcontainer/` config for VS Code Remote Containers / GitHub Codespaces. See [`docs/DOCKER.md`](docs/DOCKER.md) for usage.
+
 ## Production Deployment
 
 Zita is actively used in production at Macquarie University for COMP1000, processing student Processing projects and generating automated feedback aligned with course learning outcomes.

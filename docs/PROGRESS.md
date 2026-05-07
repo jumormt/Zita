@@ -16,6 +16,7 @@
 | 2026-05-07 | 03-regression-baseline | E1 | done | 46-sample sweep (`temp/regression-2026-05-07/`, local-only). Zero regression in existing rules. Per-rule comparison documented in summary. |
 | 2026-05-07 | 04-remaining-proposed-rules | E1 | done | Commit `590cd90`. 5 new rules — Wikipedia/RandomDirectionChange/FrameCount/ExcessiveInlineDoc/EmptyMethodBody. All firing on testbed. `HasExcessiveInlineDocumentationRule` simplified to single-signal version (ratio signal deferred). |
 | 2026-05-07 | 05-port-batch-pipeline | E2 | done | Commit `871c852`. `scripts/{batch_process_zita,analyze_zita_results}.py` + README. Smoke-tested 9/9 successful on AssessmentB Persona 2. |
+| 2026-05-07 | 06-dockerize | infra | done | Multi-stage `Dockerfile` (299 MB runtime), `.dockerignore`, `.devcontainer/devcontainer.json`, `docs/DOCKER.md`. Batch script also reads `ZITA_JAR`/`ZITA_RULES` env vars (set by image). 1/1 + 9/9 batch smoke pass via container. |
 
 ## Next Steps
 <!-- THE MOST IMPORTANT SECTION. This is what the next session reads first. Be specific. -->
@@ -26,8 +27,9 @@
   3. Hold the work locally until you decide which rules belong upstream vs internal.
 - **E0 follow-up unchanged:** upstream PRs `Addzyyy/Zita#10` (KDoc typo) and `#11` (category descriptors) still OPEN, awaiting upstream review.
 - **Possible follow-up plans (not started):**
-  - `06-junit-regression-harness`: convert the Bash regression sweep into a real test suite asserting per-rule hit counts. Would prevent the kind of regressions Plan 03 caught manually.
-  - `07-tune-excessive-inline-doc`: empirically tune `narrationThreshold` after observing real-cohort false-positive rate.
+  - `07-junit-regression-harness`: convert the Bash regression sweep into a real test suite asserting per-rule hit counts. Would prevent the kind of regressions Plan 03 caught manually.
+  - `08-tune-excessive-inline-doc`: empirically tune `narrationThreshold` after observing real-cohort false-positive rate.
+  - `09-ci-on-main`: extend `merge-to-dev.yml` (or add a sibling workflow) to also build on `pull_request: branches: [main]` so direct-to-main typos can no longer slip past. Could now validate via `docker build .` for free.
 
 ## Known Issues
 <!-- Persistent bugs, limitations, or risks that span sessions -->

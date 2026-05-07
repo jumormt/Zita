@@ -24,14 +24,18 @@ the main .pde filename, but Zita only requires the .pde to be present.
 """
 
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_JAR = REPO_ROOT / "target" / "Zita.jar"
-DEFAULT_RULES = REPO_ROOT / "src" / "main" / "resources" / "rulesets" / "rules.xml"
+# Defaults: prefer env vars (set by the Docker image), then repo-relative paths.
+DEFAULT_JAR = Path(os.environ.get("ZITA_JAR", REPO_ROOT / "target" / "Zita.jar"))
+DEFAULT_RULES = Path(
+    os.environ.get("ZITA_RULES", REPO_ROOT / "src" / "main" / "resources" / "rulesets" / "rules.xml")
+)
 
 
 class ZitaBatchProcessor:
