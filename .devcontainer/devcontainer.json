@@ -5,16 +5,29 @@
 //   - VS Code: install "Dev Containers" extension, F1 → "Dev Containers: Reopen in Container"
 //   - GitHub Codespaces: works out of the box, no extra config needed
 //
-// Provides JDK 17 + Maven (from the base image) and Python 3.11 (via feature)
+// Provides JDK 17 + Maven (via java feature) and Python 3.11 (via feature)
 // — the minimum needed to build the JAR and run the batch-analysis scripts.
+//
+// Note on Maven: the base image bundles Maven through SDKMAN, but SDKMAN only
+// initializes in login/interactive shells, so `mvn` is not on PATH for
+// non-interactive shells (postCreateCommand, plain `docker exec`, some VS Code
+// terminal modes). The java feature with installMaven=true installs Maven into
+// a location that's on the default PATH for every shell type.
 {
   "name": "Zita",
 
-  // Microsoft's java devcontainer base image: JDK 17, Maven, Git, common dev
-  // tooling. Avoids maintaining a parallel Dockerfile.
-  "image": "mcr.microsoft.com/devcontainers/java:1-17-jammy",
+  // Microsoft's java devcontainer base image: JDK 17, Git, common dev tooling.
+  // Avoids maintaining a parallel Dockerfile.
+  // Note: this image is Debian-based; there is no -jammy variant. Pinning to
+  // the 3.x line on bookworm — earlier 1.x tags ship a yarn apt source whose
+  // signing key has rotated, breaking apt-get update inside features.
+  "image": "mcr.microsoft.com/devcontainers/java:3-17-bookworm",
 
   "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "none",
+      "installMaven": "true"
+    },
     "ghcr.io/devcontainers/features/python:1": {
       "version": "3.11",
       "installTools": false
