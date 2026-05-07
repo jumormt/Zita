@@ -142,10 +142,10 @@ If any of the six is missing, see Troubleshooting → "expected rule did not fir
 Run the batch pipeline directly against the bundled `examples/` directory — its three subdirectories already match the flat-cohort layout the script expects, so no copying is needed:
 
 ```bash
-python3 scripts/batch_process_zita.py examples /tmp/zita-batch-out
+python3 scripts/batch_process_zita.py examples out
 ```
 
-(The second arg is the output directory. Omit it and output lands at `examples/batch-analysis/`, which would pollute the committed examples — pass an explicit `/tmp` path instead.)
+(The second arg is the output directory. `out/` is in `.gitignore`, so output stays untracked. Omit it and output lands at `examples/batch-analysis/`, which would pollute the committed examples — always pass an explicit output path.)
 
 **Expected output**:
 
@@ -156,13 +156,13 @@ Processing 3 submissions...
   [3/3] ok 03-multi-file
 
 Done: 3/3 successful
-Output: /tmp/zita-batch-out
+Output: out
 ```
 
 The output directory now contains:
 
 ```text
-/tmp/zita-batch-out/
+out/
 ├── csv/                       # PMD CSV (input for the analyser)
 ├── json/                      # PMD JSON (machine-readable)
 ├── student_feedback/          # Student renderer text
@@ -175,8 +175,8 @@ The output directory now contains:
 ## Test 5 — Aggregate report
 
 ```bash
-python3 scripts/analyze_zita_results.py /tmp/zita-batch-out/csv
-cat /tmp/zita-batch-out/csv/analysis_report.md | head -30
+python3 scripts/analyze_zita_results.py out/csv
+cat out/csv/analysis_report.md | head -30
 ```
 
 **Expected output**:
@@ -201,7 +201,7 @@ Per-submission counts will differ across submissions — `02-violations` should 
 ## Test 6 — Inspect the AI-detection signals
 
 ```bash
-grep -A 12 "^### Ai Detection" /tmp/zita-batch-out/csv/analysis_report.md
+grep -A 12 "^### Ai Detection" out/csv/analysis_report.md
 ```
 
 **Expected output** — the bundled `examples/` are deliberately AI-free, so all AI-detection totals should be `0` (or the rule omitted from the report):
@@ -229,7 +229,7 @@ This is the *negative control* for the batch report — confirms the AI rules do
 Drill into one submission's violations:
 
 ```bash
-sed -n '/^### 02-violations$/,/^### /p' /tmp/zita-batch-out/csv/analysis_report.md
+sed -n '/^### 02-violations$/,/^### /p' out/csv/analysis_report.md
 ```
 
 **Expected output**: a `### 02-violations` block listing every rule that fired on the deliberate-anti-pattern sketch, sorted by hit count.
@@ -316,7 +316,7 @@ time java -jar target/Zita.jar \
 ## Cleanup
 
 ```bash
-rm -rf /tmp/zita-test /tmp/zita-batch-out
+rm -rf /tmp/zita-test out
 ```
 
 ---
