@@ -79,7 +79,6 @@ mkdir -p out
 docker run --rm --user "$(id -u):$(id -g)" --entrypoint python3 \
   -v "$PWD/examples:/work" -v "$PWD/out:/out" \
   zita /app/scripts/batch_process_zita.py /work /out
-# Done: 4/4 successful
 ```
 
 Then aggregate the results into a markdown report:
