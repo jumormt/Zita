@@ -16,3 +16,8 @@ target/
 # never belong in version control.
 out/
 submissions/
+
+# Project-local scratch directory (per CLAUDE.md / rules: workspace
+# convention is `/temp` for ad-hoc fixtures, regression sweeps, and
+# any other disposable intermediates).
+temp/

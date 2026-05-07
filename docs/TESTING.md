@@ -95,8 +95,8 @@ Pass criterion: output is grouped under category headings; per-rule status uses 
 Author a deliberately AI-flavoured sketch and verify each detection rule fires:
 
 ```bash
-mkdir -p /tmp/zita-test/MySketch
-cat > /tmp/zita-test/MySketch/MySketch.pde <<'EOF'
+mkdir -p temp/zita-test/MySketch
+cat > temp/zita-test/MySketch/MySketch.pde <<'EOF'
 // ================ GLOBAL VARIABLES ================
 // Author: [Your Name]
 // Reference: https://en.wikipedia.org/wiki/Pong
@@ -117,7 +117,7 @@ void draw() {
 }
 EOF
 
-java -jar target/Zita.jar --project /tmp/zita-test/MySketch \
+java -jar target/Zita.jar --project temp/zita-test/MySketch \
   --rules src/main/resources/rulesets/rules.xml --renderer zita 2>&1 \
   | grep -E "Has(Placeholder|Decorative|Wikipedia|RandomDirection|ExcessiveInline|FrameCount|EmptyMethodBody|Citation)|^>"
 ```
@@ -255,8 +255,8 @@ java -jar target/Zita.jar --project examples/01-bouncing-ball \
 Or, with a hand-crafted clean sketch:
 
 ```bash
-mkdir -p /tmp/zita-test/CleanSketch
-cat > /tmp/zita-test/CleanSketch/CleanSketch.pde <<'EOF'
+mkdir -p temp/zita-test/CleanSketch
+cat > temp/zita-test/CleanSketch/CleanSketch.pde <<'EOF'
 // My drawing program for COMP1000 assignment
 // Inspired by the bouncing ball example from week 4 lab
 
@@ -294,7 +294,7 @@ void draw() {
 }
 EOF
 
-java -jar target/Zita.jar --project /tmp/zita-test/CleanSketch \
+java -jar target/Zita.jar --project temp/zita-test/CleanSketch \
   --rules src/main/resources/rulesets/rules.xml --renderer zita 2>&1 \
   | grep -E "Has(Placeholder|Decorative|Wikipedia|RandomDirection|ExcessiveInline|FrameCount|EmptyMethodBody|Citation)" \
   | wc -l
@@ -320,7 +320,7 @@ time java -jar target/Zita.jar \
 ## Cleanup
 
 ```bash
-rm -rf /tmp/zita-test out
+rm -rf temp/zita-test out
 ```
 
 ---
