@@ -24,15 +24,17 @@ ls -la target/Zita.jar
 mvn -B clean package
 ```
 
+All tests below run against sketches the repo ships in [`examples/`](../examples/) or that you generate inline as a temporary fixture. No additional corpus is required.
+
 ---
 
 ## Test 1 — Single sketch with the default renderer
 
-Run the analyser against a known-AI submission from the bundled handover testbed:
+Run the analyser against the bundled `02-violations` sketch — it deliberately trips a wide range of rules and is a good showcase of the default renderer's output:
 
 ```bash
 java -jar target/Zita.jar \
-  --project "temp/handover/ExamplePrograms/AssessmentC/Persona 2/assC-P2-Claude1" \
+  --project examples/02-violations \
   --rules src/main/resources/rulesets/rules.xml \
   --renderer zita
 ```
@@ -40,15 +42,16 @@ java -jar target/Zita.jar \
 **Expected output** (excerpt):
 
 ```
-> Decorative section comment detected
-> Placeholder author text detected: [Your Name]
-> AI-typical random direction pattern detected
-> Wikipedia reference found in comment.
-> Excessive inline documentation: 4 short comments narrate Processing API calls (threshold 3).
-> ... plus generic style rules: ShortVariable, FieldNamingConventions, etc.
+> Event handlers should contain control flow or call declared methods
+> Few or no 2D shapes found in the code.
+> No arrays are used in this code.
+> No classes were found. Try adding a class to organize your drawing code ...
+> No user-defined class found.
+> In file 02-violations.pde at line 1: Avoid variables with short names like x
+> In file 02-violations.pde at line 6: Do not use drawing method background in method setup ...
 ```
 
-Pass criterion: at least **four** AI-detection rules (`Has...`) fire on this Claude submission.
+Pass criterion: 20+ rule hits, including the "no class", "no array", and "drawing method in setup" findings. To verify AI-detection rules specifically, use Test 3 below — this sketch is hand-crafted as a generic anti-pattern showcase, not an AI-style submission.
 
 ---
 
@@ -58,7 +61,7 @@ The `student` renderer groups violations into "Minimum Requirements" and "Demons
 
 ```bash
 java -jar target/Zita.jar \
-  --project "temp/handover/ExamplePrograms/AssessmentC/Persona 2/assC-P2-Claude1" \
+  --project examples/01-bouncing-ball \
   --rules src/main/resources/rulesets/rules.xml \
   --renderer student
 ```
@@ -136,18 +139,17 @@ If any of the six is missing, see Troubleshooting → "expected rule did not fir
 
 ## Test 4 — Batch analysis on a cohort
 
-Simulate a small cohort of submissions and run the batch pipeline:
+Build a small cohort from the bundled examples plus the hand-crafted AI sketch from Test 3, then run the batch pipeline:
 
 ```bash
 mkdir -p /tmp/my-cohort
-cp -r "temp/handover/ExamplePrograms/AssessmentC/Persona 2/assC-P2-Claude1" /tmp/my-cohort/
-cp -r "temp/handover/ExamplePrograms/AssessmentC/Persona 2/assC-P2-GPT1"    /tmp/my-cohort/
-cp -r "temp/handover/ExamplePrograms/AssessmentC/Persona 2/assC-P2-Gemini1" /tmp/my-cohort/
-cp -r "temp/handover/ExamplePrograms/AssessmentB/Hopper"                    /tmp/my-cohort/
-cp -r /tmp/zita-test/MySketch                                               /tmp/my-cohort/
+cp -r examples/01-bouncing-ball  /tmp/my-cohort/
+cp -r examples/02-violations     /tmp/my-cohort/
+cp -r examples/03-multi-file     /tmp/my-cohort/
+cp -r /tmp/zita-test/MySketch    /tmp/my-cohort/   # hand-crafted AI sketch from Test 3
 
 ls /tmp/my-cohort
-# Expect: 5 directories
+# Expect: 4 directories
 ```
 
 Important: use `cp -r`, not `ln -s`. Zita's `Files.find` does not follow symlinks; symlinked submissions silently produce empty results.
@@ -159,14 +161,13 @@ python3 scripts/batch_process_zita.py /tmp/my-cohort /tmp/my-cohort/out
 **Expected output**:
 
 ```
-Processing 5 submissions...
-  [1/5] ok assC-P2-Claude1
-  [2/5] ok assC-P2-GPT1
-  [3/5] ok assC-P2-Gemini1
-  [4/5] ok Hopper
-  [5/5] ok MySketch
+Processing 4 submissions...
+  [1/4] ok 01-bouncing-ball
+  [2/4] ok 02-violations
+  [3/4] ok 03-multi-file
+  [4/4] ok MySketch
 
-Done: 5/5 successful
+Done: 4/4 successful
 Output: /tmp/my-cohort/out
 ```
 
@@ -197,17 +198,16 @@ cat /tmp/my-cohort/out/csv/analysis_report.md | head -30
 
 ## Summary
 
-- **Submissions analysed:** 5
+- **Submissions analysed:** 4
 - **Unique rules triggered:** N
 
-- assC-P2-Claude1 - Violations: 66 - Unique Rules: 22
-- assC-P2-GPT1 - Violations: 41 - Unique Rules: 16
-- assC-P2-Gemini1 - Violations: ...
-- Hopper - Violations: ...
-- MySketch - Violations: ...
+- 01-bouncing-ball - Violations: ...
+- 02-violations    - Violations: ...
+- 03-multi-file    - Violations: ...
+- MySketch         - Violations: ...
 ```
 
-Per-submission counts will differ across submissions — if every row shows the same number, see Troubleshooting → "all submissions show identical counts".
+Per-submission counts will differ across submissions — `02-violations` should be highest, `01-bouncing-ball` lowest. If every row shows the same number, see Troubleshooting → "all submissions show identical counts".
 
 ---
 
@@ -217,21 +217,23 @@ Per-submission counts will differ across submissions — if every row shows the 
 grep -A 12 "^### Ai Detection" /tmp/my-cohort/out/csv/analysis_report.md
 ```
 
-**Expected output** (counts will reflect the 5-submission cohort):
+**Expected output** (counts will reflect the 4-submission cohort — most AI-detection rules fire only on the hand-crafted `MySketch`):
 
 ```
 ### Ai Detection
 
-- HasDecorativeSectionCommentsRule - Total: 3
-- HasPlaceholderAuthorRule - Total: 3
-- HasWikipediaReferenceRule - Total: 3
-- HasRandomDirectionPatternRule - Total: 2
-- HasCitationCommentsRule - Total: 1
+- HasDecorativeSectionCommentsRule - Total: 1
+- HasPlaceholderAuthorRule - Total: 1
+- HasWikipediaReferenceRule - Total: 1
+- HasRandomDirectionPatternRule - Total: 1
 - HasRandomDirectionChangePatternRule - Total: 1
 - HasExcessiveInlineDocumentationRule - Total: 1
 - HasFrameCountMagicNumberRule - Total: 0   (or omitted)
 - HasEmptyMethodBodyRule - Total: 0         (or omitted)
+- HasCitationCommentsRule - Total: 0        (or omitted)
 ```
+
+A real cohort with multiple AI submissions would show higher totals on the first six rules; this small fixture cohort just confirms the signals are wired correctly.
 
 ---
 
@@ -249,7 +251,17 @@ sed -n '/^### MySketch$/,/^### /p' /tmp/my-cohort/out/csv/analysis_report.md
 
 ## Test 8 — Negative control (false-positive check)
 
-A deliberately "clean" sketch should not trigger AI-detection rules:
+A deliberately "clean" sketch should not trigger AI-detection rules. The bundled `examples/01-bouncing-ball` is suitable, or use the inline `CleanSketch` below:
+
+```bash
+java -jar target/Zita.jar --project examples/01-bouncing-ball \
+  --rules src/main/resources/rulesets/rules.xml --renderer zita 2>&1 \
+  | grep -E "Has(Placeholder|Decorative|Wikipedia|RandomDirection|ExcessiveInline|FrameCount|EmptyMethodBody|Citation)" \
+  | wc -l
+# Expected: 0
+```
+
+Or, with a hand-crafted clean sketch:
 
 ```bash
 mkdir -p /tmp/zita-test/CleanSketch
@@ -305,12 +317,12 @@ java -jar target/Zita.jar --project /tmp/zita-test/CleanSketch \
 
 ```bash
 time java -jar target/Zita.jar \
-  --project "temp/handover/ExamplePrograms/AssessmentC/Persona 2/assC-P2-Claude1" \
+  --project examples/02-violations \
   --rules src/main/resources/rulesets/rules.xml \
   --renderer zita > /dev/null
 ```
 
-**Expected**: 2–4 seconds wall clock for a single sketch on modern hardware. Batch sweeps over the 46-sketch handover testbed complete in roughly 60–80 seconds.
+**Expected**: 2–4 seconds wall clock for a single small sketch on modern hardware. Larger sketches (multi-file projects with many classes) typically finish in 4–6 seconds, and batch sweeps scale roughly linearly with submission count.
 
 ---
 

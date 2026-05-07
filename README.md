@@ -60,6 +60,11 @@ This repository represents continued development and production deployment of th
    java -jar Zita.jar --project /path/to/processing/project --rules rules.xml --renderer student
    ```
 
+   No project handy? Use the bundled examples in [`examples/`](examples/):
+   ```sh
+   java -jar Zita.jar --project examples/02-violations --rules rules.xml
+   ```
+
 ### Usage
 
 ```
@@ -138,28 +143,55 @@ src/main/
 ```
 ## Building from Source
 
-### Prerequisites
+There are three supported build paths. Pick the one that matches your environment — the result of each is the same shaded JAR, `target/Zita.jar`.
 
-- Java JDK 11 or higher
-- Maven 3.x
+There is no test suite, so each option ends with a smoke run that should print Zita's CLI usage banner and exit 0.
 
-### Build Steps
+### Option A — Host Maven
+
+**Prerequisites:** JDK 11 or 17, Maven 3.x, Git.
 
 ```sh
-# Clone the repository
 git clone https://github.com/Addzyyy/Zita.git
 cd Zita
-
-# Compile and package
-mvn clean package
-
-# Run the built JAR
-java -jar target/Zita.jar --project <path> --rules <rules_path>
+mvn clean package                  # produces target/Zita.jar
+java -jar target/Zita.jar          # smoke test → prints usage banner
 ```
 
-### Docker / Dev Container
+The Maven Shade Plugin produces an executable fat JAR. Java and Kotlin sources are compiled jointly via the Kotlin Maven plugin — don't reorder the plugin executions in `pom.xml` without understanding that setup. CI (`.github/workflows/merge-to-dev.yml`) runs `mvn -B clean install` on JDK 17.
 
-If you'd rather not install Java + Maven + Python on the host, the repository ships with a multi-stage `Dockerfile` (production image, ~299 MB) and a `.devcontainer/` config for VS Code Remote Containers / GitHub Codespaces. See [`docs/DOCKER.md`](docs/DOCKER.md) for usage.
+### Option B — Dev Container (VS Code)
+
+**Prerequisites:** Docker + VS Code with the *Dev Containers* extension (or GitHub Codespaces, which works out of the box).
+
+1. Open the repo folder in VS Code.
+2. `F1` → **Dev Containers: Reopen in Container**.
+3. First attach pulls `mcr.microsoft.com/devcontainers/java:3-17-bookworm`, installs the Python 3.11 feature, and runs `mvn -B -q clean package -DskipTests` automatically (`postCreateCommand`).
+
+When the container finishes attaching, `target/Zita.jar` is already built. From the container's integrated terminal:
+
+```sh
+java -jar target/Zita.jar          # smoke test → prints usage banner
+```
+
+Configuration lives in [`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json).
+
+### Option C — Production Docker Image
+
+**Prerequisites:** Docker only (no host JDK or Maven needed).
+
+```sh
+docker build -t zita .             # multi-stage build, final image ~299 MB
+docker run --rm zita               # smoke test → prints usage banner
+
+# Run against a bundled example sketch (no host mount required)
+docker run --rm zita \
+  --project /app/examples/02-violations \
+  --rules /app/rules.xml \
+  --renderer zita
+```
+
+The smoke run requires the `docker build` step in the same shell (or any time previously); `docker run` does not build the image. The multi-stage `Dockerfile` builds with `maven:3.9-eclipse-temurin-17`, then ships the JAR + `rules.xml` + `scripts/` + `examples/` on `eclipse-temurin:17-jre-jammy`. See [`docs/DOCKER.md`](docs/DOCKER.md) for run examples and the batch-processing entrypoint.
 
 ## Production Deployment
 
@@ -187,6 +219,7 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 ### Adding Custom Rules
 
 To add a new rule:
+
 1. Create a Kotlin class extending `AbstractProcessingRule` in `src/main/kotlin/nl/utwente/processing/pmd/rules/`
 2. Implement the PMD visitor pattern for AST analysis
 3. Add the rule to `src/main/resources/rulesets/rules.xml` with appropriate category
@@ -199,6 +232,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 This project builds upon the foundational research and development work of:
+
 - **Tim Blok** - Original Zita framework for Processing-to-Java conversion
 - **Remco de Man & Ansgar Fehnker** - PMD rules for Processing code analysis
 - **Arthur Rump** - Main contributor to Atelier-PMD
