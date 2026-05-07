@@ -200,27 +200,18 @@ Per-submission counts will differ across submissions — `02-violations` should 
 
 ## Test 6 — Inspect the AI-detection signals
 
+The analyser groups categories by rules that *did* fire. With an AI-free cohort, no `### Ai Detection` section is produced — instead the AI rules appear under `### Rules Not Triggered`. Verify all nine AI-detection rules are present there:
+
 ```bash
-grep -A 12 "^### Ai Detection" out/csv/analysis_report.md
+for r in HasDecorativeSectionCommentsRule HasPlaceholderAuthorRule \
+         HasWikipediaReferenceRule HasRandomDirectionPatternRule \
+         HasRandomDirectionChangePatternRule HasExcessiveInlineDocumentationRule \
+         HasFrameCountMagicNumberRule HasEmptyMethodBodyRule HasCitationCommentsRule; do
+  grep -q "^- $r\$" out/csv/analysis_report.md && echo "  $r ✓" || echo "  $r ✗ MISSING"
+done
 ```
 
-**Expected output** — the bundled `examples/` are deliberately AI-free, so all AI-detection totals should be `0` (or the rule omitted from the report):
-
-```text
-### Ai Detection
-
-- HasDecorativeSectionCommentsRule - Total: 0   (or omitted)
-- HasPlaceholderAuthorRule - Total: 0           (or omitted)
-- HasWikipediaReferenceRule - Total: 0          (or omitted)
-- HasRandomDirectionPatternRule - Total: 0      (or omitted)
-- HasRandomDirectionChangePatternRule - Total: 0 (or omitted)
-- HasExcessiveInlineDocumentationRule - Total: 0 (or omitted)
-- HasFrameCountMagicNumberRule - Total: 0       (or omitted)
-- HasEmptyMethodBodyRule - Total: 0             (or omitted)
-- HasCitationCommentsRule - Total: 0            (or omitted)
-```
-
-This is the *negative control* for the batch report — confirms the AI rules don't false-fire on clean code. To see the rules actually fire, point Test 3's hand-crafted sketch at `--renderer zita` directly (Test 3 above) or run the batch on a directory that contains it.
+**Expected output**: nine `✓` lines. This is the *negative control* for the batch report — confirms the AI rules don't false-fire on clean code, and confirms they're wired into the analyser's category map at all (otherwise they'd be listed under `### Rules Not in Category List` instead). To see the rules actually fire, point Test 3's hand-crafted sketch at `--renderer zita` directly (Test 3 above), or run the batch on a directory that includes it — the per-rule totals would then appear in a real `### Ai Detection` section.
 
 ---
 
