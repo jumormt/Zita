@@ -10,3 +10,9 @@ target/
 *.jar
 *.swp
 *.bak
+
+# Batch-pipeline output and ad-hoc submission corpora left behind by docker
+# runs of scripts/batch_process_zita.py. Both are produced at runtime and
+# never belong in version control.
+out/
+submissions/
