@@ -221,12 +221,15 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 A new rule touches three files: a Kotlin visitor under `src/main/kotlin/nl/utwente/processing/pmd/rules/`, an entry in `src/main/resources/rulesets/rules.xml`, and a category mapping in `src/main/resources/rule-category-mapping.properties` (only needed for the `student`/`handover` renderers). The fastest path is the scaffolding script:
 
 ```sh
-scripts/new_rule.sh HasFooRule "minimum.Basic Functionality" 3 \
-  "One-sentence student-facing message."
+scripts/new_rule.sh \
+  HasFooRule \                       # 1. RuleName — PascalCase, conventionally ends in "Rule"
+  "minimum.Basic Functionality" \    # 2. category — "<bucket>.<subcategory>", bucket ∈ {minimum, mastery}; pass "none" for stock-PMD-renderer-only rules
+  3 \                                # 3. priority — PMD priority, 1 (highest) – 5 (lowest); most rules use 3
+  "One-sentence student-facing message."   # 4. message — shown to students when the rule fires
 mvn -B clean package
 ```
 
-That generates the Kotlin stub with the correct `category` `PropertyDescriptor`, splices the `<rule>` block into `rules.xml` before `</ruleset>`, and adds the category mapping line — leaving you to fill in the `visit()` body. See [`docs/CUSTOM_RULES.md`](docs/CUSTOM_RULES.md) for the full walkthrough: visitor patterns, the synthesized-Java line-number caveat, available helpers (`ProcessingApplet`, `ExpressionUtils`, `ScopeUtils`), and common pitfalls.
+Run `scripts/new_rule.sh` with no arguments to see the same usage block at any time. The script generates the Kotlin stub with the correct `category` `PropertyDescriptor`, splices the `<rule>` block into `rules.xml` before `</ruleset>`, and adds the category mapping line — leaving you to fill in the `visit()` body. See [`docs/CUSTOM_RULES.md`](docs/CUSTOM_RULES.md) for the full walkthrough: visitor patterns, the synthesized-Java line-number caveat, available helpers (`ProcessingApplet`, `ExpressionUtils`, `ScopeUtils`), and common pitfalls.
 
 ## License
 
